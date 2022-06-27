@@ -1,0 +1,34 @@
+@startuml Crypto Credits Technical Architecture
+
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v13.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/ApplicationIntegration/APIGateway.puml
+!include AWSPuml/Containers/ElasticKubernetesService.puml
+!include AWSPuml/Blockchain/Blockchain.puml
+!include AWSPuml/Database/Database.puml
+!include AWSPuml/Analytics/ManagedStreamingforApacheKafka.puml
+
+left to right direction
+
+APIGateway(apiGateway, "API Gateway", "External API Patterns")
+ElasticKubernetesService(creditCrytoService, "Credit Crypto Service", "Saga Pattern")
+Blockchain(blockchainService, "Core Service", "Smart Contract")
+ManagedStreamingforApacheKafka(kafka, "Kafka", "Message Style Pattern")
+Database(databaseBlockchain, "Database", "Postgres Database")
+ElasticKubernetesService(erpService, "ERP", "Last mile service")
+ElasticKubernetesService(analyticsService, "Analytics", "Last mile service")
+ElasticKubernetesService(auditService, "Audit", "Last mile service")
+Database(databaseBusinessRequirements, "Database", "Postgres Database")
+
+apiGateway --> creditCrytoService : JSON message
+creditCrytoService --> blockchainService : JSON messages
+creditCrytoService --> kafka : JSON messages
+blockchainService --> databaseBlockchain : Tx messages
+kafka --> erpService : JSON messages
+kafka --> analyticsService : JSON messages
+kafka --> auditService : JSON messages
+erpService --> databaseBusinessRequirements : Tx messages
+analyticsService --> databaseBusinessRequirements : Tx messages
+auditService --> databaseBusinessRequirements : Tx messages
+
+@enduml
