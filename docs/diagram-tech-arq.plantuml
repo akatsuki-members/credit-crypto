@@ -12,22 +12,26 @@ left to right direction
 
 APIGateway(apiGateway, "API Gateway", "External API Patterns")
 ElasticKubernetesService(creditCrytoService, "Credit Crypto Service", "Saga Pattern")
-Blockchain(blockchainService, "Core Service", "Smart Contract")
+ElasticKubernetesService(blockchainService, "Core", "Block chain client")
 ManagedStreamingforApacheKafka(kafka, "Kafka", "Message Style Pattern")
 Database(databaseBlockchain, "Database", "Postgres Database")
-ElasticKubernetesService(erpService, "ERP", "Last mile service")
+Blockchain(blockchain, "blockchain", "blockchain")
+ElasticKubernetesService(exportService, "tx exporter", "Last mile service")
 ElasticKubernetesService(analyticsService, "Analytics", "Last mile service")
 ElasticKubernetesService(auditService, "Audit", "Last mile service")
 Database(databaseBusinessRequirements, "Database", "Postgres Database")
+component "Eexternal Platform" as externalapp <<service layer>>
 
 apiGateway --> creditCrytoService : JSON message
 creditCrytoService --> blockchainService : JSON messages
 creditCrytoService --> kafka : JSON messages
+blockchainService --> blockchain : Tx messages
 blockchainService --> databaseBlockchain : Tx messages
-kafka --> erpService : JSON messages
+kafka --> exportService : JSON messages
 kafka --> analyticsService : JSON messages
 kafka --> auditService : JSON messages
-erpService --> databaseBusinessRequirements : Tx messages
+exportService --> externalapp : Tx messages
+exportService --> databaseBusinessRequirements : Tx messages
 analyticsService --> databaseBusinessRequirements : Tx messages
 auditService --> databaseBusinessRequirements : Tx messages
 
