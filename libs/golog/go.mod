@@ -1,4 +1,4 @@
-module github.com/akatsuki-members/credit-crypto/libs/golog
+module github.com/akatsuki-members/credit-crypto/libs/golog/pkg/log
 
 go 1.18
 
