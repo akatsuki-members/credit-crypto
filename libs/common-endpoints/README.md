@@ -45,9 +45,31 @@ func(http.ResponseWriter, *http.Request)
 * You can add one common endpoint or all of them.
 
 ```go
+import "github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/health"
 import "github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/heartbeat"
 ...
 mux := http.NewServeMux()
 ...
-endpoints.New(mux).WithHeartbeat().WithHealth().WithInfo()
+endpoints.New(mux).WithHeartbeat().WithHealth(newHypotheticalHealthChecker()).WithInfo()
+...
+func newHypotheticalHealthChecker() func() health.Report {
+    // add your health logic here
+	return func() health.Report {
+        report, healthy := checkIntegrations()
+		return health.Report{
+			Healthy: healthy,
+			Data:    report,
+		}
+	}
+}
+...
+func checkIntegrations() ([]health.Item, bool) {
+    healthy := true
+    report := []health.Item{
+		{Name: "Database", Healthy: true},
+		{Name: "Cache", Healthy: true},
+		{Name: "OtherService", Healthy: true},
+	}
+    return report, healthy
+}
 ```
