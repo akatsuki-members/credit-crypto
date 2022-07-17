@@ -1,3 +1,5 @@
+![CI](https://github.com/akatsuki-members/credit-crypto/actions/workflows/common-endpoints.yaml/badge.svg?branch=dev) ![GitHub release](https://img.shields.io/github/release/akatsuki-members/credit-crypto/all.svg?style=plastic)
+
 # common-endpoints
 
 It provides a set of common endpoint for apps and microservices.

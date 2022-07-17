@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers"
-	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/health"
 	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/pkg/endpoints"
 	"github.com/stretchr/testify/assert"
 )
@@ -31,7 +30,7 @@ func TestHeartbeat(t *testing.T) {
 
 func TestHealth(t *testing.T) {
 	expectedCode := 200
-	expectedHealth := []health.Item{
+	expectedHealth := []endpoints.Item{
 		{Name: "Database", Healthy: true},
 		{Name: "Cache", Healthy: true},
 		{Name: "OtherService", Healthy: true},
@@ -87,17 +86,17 @@ func (h *httpHandlerMock) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func newMockedHealthChecker(report []health.Item, healthy bool) func() health.Report {
-	return func() health.Report {
-		return health.Report{
+func newMockedHealthChecker(report []endpoints.Item, healthy bool) func() endpoints.Report {
+	return func() endpoints.Report {
+		return endpoints.Report{
 			Healthy: healthy,
 			Data:    report,
 		}
 	}
 }
 
-func newHealthReportOK() []health.Item {
-	return []health.Item{
+func newHealthReportOK() []endpoints.Item {
+	return []endpoints.Item{
 		{Name: "Database", Healthy: true},
 		{Name: "Cache", Healthy: true},
 		{Name: "OtherService", Healthy: true},
@@ -118,7 +117,7 @@ func decodeHealthResponse(t *testing.T, res *http.Response) handlers.Result {
 		t.Errorf("unexpected error, %s", err)
 		t.FailNow()
 	}
-	var items []health.Item
+	var items []endpoints.Item
 	err = json.Unmarshal(resultData, &items)
 	if err != nil {
 		t.Errorf("unexpected error, %s", err)
