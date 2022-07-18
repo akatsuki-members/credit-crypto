@@ -5,10 +5,18 @@ import (
 
 	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/health"
 	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/heartbeat"
+	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/info"
 )
 
 // HealthChecker function type to check service health
 type HealthChecker func() Report
+
+// Info contains service information data
+type Info struct {
+	Name    string `json:"name"`
+	Commit  string `json:"commit"` // commit hash
+	Version string `json:"version"`
+}
 
 // Item contains information about components and their status.
 type Item struct {
@@ -34,15 +42,28 @@ func New(router *http.ServeMux) *handler {
 	return &newHandler
 }
 
+// WithHeartbeat add heartbeat endpoint to the service.
 func (h *handler) WithHeartbeat() *handler {
 	h.hasEndpoints = true
 	heartbeat.Add(h.router)
 	return h
 }
 
+// WithHealth add health endpoint to the service.
 func (h *handler) WithHealth(checker HealthChecker) *handler {
 	h.hasEndpoints = true
 	health.Add(h.router, h.newHealthChecker(checker))
+	return h
+}
+
+func (h *handler) WithInfo(data Info) *handler {
+	h.hasEndpoints = true
+	infoReport := info.Report{
+		Name:    data.Name,
+		Commit:  data.Commit,
+		Version: data.Version,
+	}
+	info.Add(h.router, infoReport)
 	return h
 }
 
