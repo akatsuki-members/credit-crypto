@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers"
+	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/info"
 	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/pkg/endpoints"
 	"github.com/stretchr/testify/assert"
 )
@@ -52,6 +53,34 @@ func TestHealth(t *testing.T) {
 	assert.Equal(t, expectedResult, result)
 }
 
+func TestInfo(t *testing.T) {
+	expectedCode := 200
+	expectedInfo := info.Report{
+		Name:    "audit-app",
+		Commit:  "963e91b",
+		Version: "1.5.3",
+	}
+	expectedResult := handlers.Result{
+		Success: true,
+		Data:    expectedInfo,
+	}
+	givenInfo := endpoints.Info{
+		Name:    "audit-app",
+		Commit:  "963e91b",
+		Version: "1.5.3",
+	}
+	httpHandler := httpHandlerMock{}
+	mux := http.NewServeMux()
+	mux.Handle("/", &httpHandler)
+
+	endpoints.New(mux).WithInfo(givenInfo)
+	code, result := hitInfo(t, mux)
+
+	assert.Equal(t, expectedCode, code)
+	assert.Equal(t, expectedResult, result)
+
+}
+
 func hitHeartbeat(t *testing.T, mux *http.ServeMux) (int, handlers.Result) {
 	t.Helper()
 	server := httptest.NewServer(mux)
@@ -77,6 +106,20 @@ func hitHealth(t *testing.T, mux *http.ServeMux) (int, handlers.Result) {
 		t.FailNow()
 	}
 	result := decodeHealthResponse(t, response)
+	return response.StatusCode, result
+}
+
+func hitInfo(t *testing.T, mux *http.ServeMux) (int, handlers.Result) {
+	t.Helper()
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	response, err := http.Get(server.URL + "/info")
+	if err != nil {
+		t.Errorf("unexpected error calling health: %s", err)
+		t.FailNow()
+	}
+	result := decodeInfoResponse(t, response)
+
 	return response.StatusCode, result
 }
 
@@ -124,5 +167,28 @@ func decodeHealthResponse(t *testing.T, res *http.Response) handlers.Result {
 		t.FailNow()
 	}
 	result.Data = items
+	return result
+}
+
+func decodeInfoResponse(t *testing.T, res *http.Response) handlers.Result {
+	t.Helper()
+	var result handlers.Result
+	err := json.NewDecoder(res.Body).Decode(&result)
+	if err != nil {
+		t.Errorf("unexpected error, %s", err)
+		t.FailNow()
+	}
+	bytes, err := json.Marshal(result.Data)
+	if err != nil {
+		t.Errorf("unexpected error mrshalling result.Data response: %s", err)
+		t.FailNow()
+	}
+	var infoReport info.Report
+	err = json.Unmarshal(bytes, &infoReport)
+	if err != nil {
+		t.Errorf("unexpected error unmarshalling info response: %s", err)
+		t.FailNow()
+	}
+	result.Data = infoReport
 	return result
 }

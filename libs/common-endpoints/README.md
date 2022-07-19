@@ -49,10 +49,17 @@ func(http.ResponseWriter, *http.Request)
 ```go
 import "github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/health"
 import "github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/heartbeat"
+import "github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/info"
 ...
 mux := http.NewServeMux()
 ...
-endpoints.New(mux).WithHeartbeat().WithHealth(newHypotheticalHealthChecker()).WithInfo()
+infoData := endpoints.Info{
+	Name:    "audit-app",
+	Commit:  "963e91b",
+	Version: "1.5.3",
+}
+...
+endpoints.New(mux).WithHeartbeat().WithHealth(newHypotheticalHealthChecker()).WithInfo(infoData)
 ...
 func newHypotheticalHealthChecker() func() health.Report {
     // add your health logic here
@@ -67,11 +74,12 @@ func newHypotheticalHealthChecker() func() health.Report {
 ...
 func checkIntegrations() ([]health.Item, bool) {
     healthy := true
-    report := []health.Item{
+    report := []endpoints.Item{
 		{Name: "Database", Healthy: true},
 		{Name: "Cache", Healthy: true},
 		{Name: "OtherService", Healthy: true},
 	}
     return report, healthy
 }
+...
 ```
