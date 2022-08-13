@@ -13,6 +13,8 @@ import (
 )
 
 func TestAddHeartbeat(t *testing.T) {
+	t.Parallel()
+
 	// GIVEN
 	expectedCode := http.StatusOK
 	expectedResult := handlers.Result{
@@ -31,20 +33,25 @@ func TestAddHeartbeat(t *testing.T) {
 
 func serve(t *testing.T, mux *http.ServeMux) (int, handlers.Result) {
 	t.Helper()
+
 	request := httptest.NewRequest(http.MethodGet, "/heartbeat", nil)
 	response := httptest.NewRecorder()
 
 	mux.ServeHTTP(response, request)
+
 	got, err := io.ReadAll(response.Body)
 	if err != nil {
 		t.Errorf("unexpected error reading heartbeat body: %s", err)
 		t.FailNow()
 	}
+
 	var result handlers.Result
+
 	err = json.Unmarshal(got, &result)
 	if err != nil {
 		t.Errorf("unexpected error unmarshalling heartbeat response: %s", err)
 		t.FailNow()
 	}
+
 	return response.Code, result
 }
