@@ -2,6 +2,7 @@ package heartbeat
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers"
@@ -14,10 +15,14 @@ func Add(router handlers.Router) {
 }
 
 func newHeartbeatHandler() func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, _ *http.Request) {
-		json.NewEncoder(w).Encode(newOkResponse())
-		w.Header().Add("content-type", "application/json")
-		w.WriteHeader(http.StatusOK)
+	return func(responseWriter http.ResponseWriter, _ *http.Request) {
+		err := json.NewEncoder(responseWriter).Encode(newOkResponse())
+		if err != nil {
+			log.Println("could not encode heartbeat", err)
+		}
+
+		responseWriter.Header().Add("content-type", "application/json")
+		responseWriter.WriteHeader(http.StatusOK)
 	}
 }
 

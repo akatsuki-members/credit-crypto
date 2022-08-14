@@ -8,10 +8,10 @@ import (
 	"github.com/akatsuki-members/credit-crypto/libs/common-endpoints/internal/handlers/info"
 )
 
-// HealthChecker function type to check service health
+// HealthChecker function type to check service health.
 type HealthChecker func() Report
 
-// Info contains service information data
+// Info contains service information data.
 type Info struct {
 	Name    string `json:"name"`
 	Commit  string `json:"commit"` // commit hash
@@ -24,39 +24,42 @@ type Item struct {
 	Healthy bool   `json:"healthy"` // health status of the component.
 }
 
-// Contains health report
+// Contains health report.
 type Report struct {
 	Healthy bool   `json:"healthy"`          // The service is healthy
 	Data    []Item `json:"report,omitempty"` // health report
 }
 
-type handler struct {
+type Handler struct {
 	router       *http.ServeMux
 	hasEndpoints bool
 }
 
-func New(router *http.ServeMux) *handler {
-	newHandler := handler{
+func New(router *http.ServeMux) *Handler {
+	newHandler := Handler{
 		router: router,
 	}
+
 	return &newHandler
 }
 
 // WithHeartbeat add heartbeat endpoint to the service.
-func (h *handler) WithHeartbeat() *handler {
+func (h *Handler) WithHeartbeat() *Handler {
 	h.hasEndpoints = true
 	heartbeat.Add(h.router)
+
 	return h
 }
 
 // WithHealth add health endpoint to the service.
-func (h *handler) WithHealth(checker HealthChecker) *handler {
+func (h *Handler) WithHealth(checker HealthChecker) *Handler {
 	h.hasEndpoints = true
 	health.Add(h.router, h.newHealthChecker(checker))
+
 	return h
 }
 
-func (h *handler) WithInfo(data Info) *handler {
+func (h *Handler) WithInfo(data Info) *Handler {
 	h.hasEndpoints = true
 	infoReport := info.Report{
 		Name:    data.Name,
@@ -64,19 +67,22 @@ func (h *handler) WithInfo(data Info) *handler {
 		Version: data.Version,
 	}
 	info.Add(h.router, infoReport)
+
 	return h
 }
 
-func (h *handler) newHealthChecker(checker HealthChecker) health.HealthChecker {
+func (h *Handler) newHealthChecker(checker HealthChecker) health.Checker {
 	return func() health.Report {
 		result := checker()
 		report := make([]health.Item, len(result.Data))
+
 		for idx, v := range result.Data {
 			report[idx] = health.Item{
 				Name:    v.Name,
 				Healthy: v.Healthy,
 			}
 		}
+
 		return health.Report{
 			Healthy: result.Healthy,
 			Data:    report,
