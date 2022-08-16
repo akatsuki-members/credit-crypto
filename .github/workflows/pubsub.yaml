@@ -1,0 +1,39 @@
+# This workflow will test pubsub project
+
+name: pubsub-ci
+
+on:
+  push:
+    branches:
+      - "dev"
+    paths:
+      - "./libs/pubsub/**"
+      - ".github/workflows/pubsub.yaml"
+  pull_request:
+    branches:
+      - "dev"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ''
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.17.x
+      - name: Cache Go Build
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-gops-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-gops-
+      - name: Test lib pubsub
+        run: |-
+          cd ./libs/pubsub
+          go test -race ./...
