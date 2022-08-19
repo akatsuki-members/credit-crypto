@@ -12,6 +12,9 @@ on:
   pull_request:
     branches:
       - "dev"
+    paths:
+      - "libs/common-endpoints/**"
+      - ".github/workflows/common-endpoints.yaml"
 
 jobs:
   build:
@@ -19,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: dev
+          ref: ''
       - name: Setup go
         uses: actions/setup-go@v3
         with:
