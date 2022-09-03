@@ -20,7 +20,7 @@ ElasticKubernetesService(exportService, "tx exporter", "Last mile service")
 ElasticKubernetesService(analyticsService, "Analytics", "Last mile service")
 ElasticKubernetesService(auditService, "Audit", "Last mile service")
 Database(databaseBusinessRequirements, "Database", "Postgres Database")
-component "Eexternal Platform" as externalapp <<service layer>>
+component "External Platform" as externalapp <<service layer>>
 
 apiGateway --> creditCrytoService : JSON message
 creditCrytoService --> blockchainService : JSON messages
