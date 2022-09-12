@@ -14,5 +14,8 @@
 # IDE directories
 .vscode
 
+# OS directories
+.DS_Store
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
